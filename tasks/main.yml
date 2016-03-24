@@ -1,0 +1,26 @@
+---
+- name: Check if mandatory variables are defined
+  include: check_variables.yml
+  tags:
+  - atlassian-jira-application
+
+- name: Check state of JIRA installation and determine required actions
+  include: determine_installation_state.yml
+  tags:
+  - atlassian-jira-application
+
+- name: Setup system environment for JIRA application
+  include: setup_environment.yml
+  tags:
+  - atlassian-jira-application
+
+- name: Download and install JIRA application
+  when: jira_need_installation
+  include: download_and_install.yml
+  tags:
+  - atlassian-jira-application
+
+- name: Configure JIRA application
+  include: configure.yml
+  tags:
+  - atlassian-jira-application

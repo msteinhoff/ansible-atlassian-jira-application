@@ -1,0 +1,52 @@
+---
+- name: Configure Java for JIRA application
+  replace:
+    dest: "{{ jira_installation_instance_directory }}/bin/setenv.sh"
+    regexp: "{{ item.regexp }}"
+    replace: "{{ item.replace }}"
+  with_items:
+  - regexp: "^# !INSTALLER SET JAVA_HOME"
+    replace: "JAVA_HOME=\"{{ jira_config_jre_directory }}\"; export JAVA_HOME"
+  - regexp: "^JVM_MINIMUM_MEMORY="
+    replace: "JVM_MINIMUM_MEMORY=\"{{ jira_config_jvm_heap_size }}\""
+  - regexp: "^JVM_MAXIMUM_MEMORY="
+    replace: "JVM_MAXIMUM_MEMORY=\"{{ jira_config_jvm_heap_size }}\""
+  - regexp: "^JVM_SUPPORT_RECOMMENDED_ARGS="
+    replace: "JVM_SUPPORT_RECOMMENDED_ARGS=\"{{ jira_config_jvm_opts }}\""
+  notify:
+  - restart jira
+
+- name: Configure JIRA_USER for JIRA application
+  template:
+    src: usr/local/jira/user.sh.j2
+    dest: "{{ jira_installation_instance_directory }}/bin/user.sh"
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+  - restart jira
+
+- name: Configure JIRA_HOME for JIRA application
+  template:
+    src: usr/local/jira/jira-application.properties.j2
+    dest: "{{ jira_installation_instance_directory }}/atlassian-jira/WEB-INF/classes/jira-application.properties"
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+  - restart jira
+
+- name: Configure server.xml for JIRA application
+  template:
+    src: usr/local/jira/server.xml.j2
+    dest: "{{ jira_installation_instance_directory }}/conf/server.xml"
+    owner: root
+    group: root
+    mode: 0755
+  notify:
+  - restart jira
+
+- name: Configure autostart for JIRA application
+  service:
+    name: "{{ jira_service_name }}"
+    enabled: "{{ jira_start_on_boot }}"

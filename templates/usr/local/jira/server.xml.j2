@@ -1,0 +1,62 @@
+#jinja2: lstrip_blocks: True, trim_blocks: True
+<?xml version="1.0" encoding="utf-8"?>
+<Server port="8005" shutdown="SHUTDOWN">
+  <Listener className="org.apache.catalina.startup.VersionLoggerListener" />
+  <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />
+  <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
+  <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
+  <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
+
+  <Service name="Catalina">
+    <Engine name="Catalina" defaultHost="localhost">
+      <Host name="localhost" appBase="webapps" unpackWARs="true" autoDeploy="true">
+        <Context path="{{ jira_config_tomcat_context_path }}" docBase="${catalina.home}/atlassian-jira" reloadable="false" useHttpOnly="true">
+          <Resource
+            name="UserTransaction"
+            auth="Container"
+            type="javax.transaction.UserTransaction"
+            factory="org.objectweb.jotm.UserTransactionFactory"
+            jotm.timeout="60"
+          />
+          <Manager
+            pathname=""
+          />
+        </Context>
+      </Host>
+      {% if jira_config_tomcat_access_log == true %}
+      <Valve
+        className="org.apache.catalina.valves.AccessLogValve"
+        resolveHosts="false"
+        pattern="%a %{jira.request.id}r %{jira.request.username}r %t &quot;%m %U%q %H&quot; %s %b %D &quot;%{Referer}i&quot; &quot;%{User-Agent}i&quot; &quot;%{jira.request.assession.id}r&quot;"
+      />
+      {% endif %}
+    </Engine>
+
+    {% for name, connector in jira_config_tomcat_connectors.iteritems() %}
+    {% if connector.enabled %}
+    <!-- {{ name }} connector -->
+    <Connector
+      protocol="HTTP/1.1"
+      port="{{ connector.listening_port }}"
+
+      maxThreads="150"
+      minSpareThreads="25"
+      acceptCount="100"
+      connectionTimeout="20000"
+      maxHttpHeaderSize="8192"
+
+      enableLookups="false"
+      useBodyEncodingForURI="true"
+      disableUploadTimeout="true"
+
+      {% if connector.type == 'proxy' %}
+      scheme="https"
+      secure="true"
+      proxyName="{{ connector.proxied_hostname }}"
+      proxyPort="{{ connector.proxied_port }}"
+      {% endif %}
+    />
+    {% endif %}
+    {% endfor %}
+  </Service>
+</Server>

@@ -1,0 +1,2 @@
+---
+jira_installation_instance_directory: "{{ jira_config_software_directory }}/{{ jira_installation_archive_name }}"

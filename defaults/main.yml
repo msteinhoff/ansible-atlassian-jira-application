@@ -1,0 +1,32 @@
+---
+jira_user_name: jira
+jira_group_name: jira
+jira_service_name: jira
+jira_provide_root_environment: false
+jira_start_on_boot: false
+
+jira_perform_installation: false
+jira_start_after_installation: false
+jira_installation_archive_url: https://www.atlassian.com/software/jira/downloads/binary/atlassian-jira-software-7.1.1-jira-7.1.1.tar.gz
+jira_installation_archive_checksum: sha1:2ecb9442628c408e74bf22243cc7fa381ba73ff7
+jira_installation_archive_name: atlassian-jira-software-7.1.1-standalone
+jira_installation_jdbc_driver_jar_source_path: ""
+
+jira_config_jre_directory: ""
+jira_config_software_directory: /opt/atlassian/jira
+jira_config_home_directory: /var/atlassian/application-data/jira
+jira_config_jvm_heap_size: 1024m
+jira_config_jvm_opts: ""
+jira_config_tomcat_context_path: ""
+jira_config_tomcat_access_log: true
+jira_config_tomcat_connectors:
+    standalone:
+        enabled: true
+        type: standalone
+        listening_port: 8080
+    reverse_proxy:
+        enabled: false
+        type: proxy
+        listening_port: 8081
+        proxied_hostname: jira.example.org
+        proxied_port: 443

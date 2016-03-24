@@ -1,0 +1,49 @@
+---
+- name: Create JIRA group
+  group:
+    name: "{{ jira_group_name }}"
+    system: yes
+
+- name: Create JIRA user
+  user:
+    name: "{{ jira_user_name }}"
+    group: "{{ jira_group_name }}"
+    system: yes
+    shell: /bin/bash
+
+- name: Configure limits for JIRA user
+  template:
+    src: etc/security/limits.d/jira.conf.j2
+    dest: /etc/security/limits.d/jira.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Create JIRA directories
+  file:
+    state: directory
+    path: "{{ item.path }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  with_items:
+  - { path: "{{ jira_config_software_directory }}", owner: root, group: root, mode: '0755' }
+  - { path: "{{ jira_config_home_directory }}", owner: "{{ jira_user_name }}", group: "{{ jira_group_name }}", mode: '0700' }
+
+- name: Provide jiraenv.sh script to simplify application administration
+  when: jira_provide_root_environment == true
+  template:
+    src: root/jiraenv.sh.j2
+    dest: /root/jiraenv.sh
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Enable jiraenv.sh script to simplify application administration
+  when: jira_provide_root_environment == true
+  lineinfile:
+    state: present
+    dest: /root/.bash_profile
+    regexp: "(.*)jiraenv(.*)"
+    line: ". jiraenv.sh"
+    insertafter: EOF

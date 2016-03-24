@@ -1,0 +1,9 @@
+---
+- name: Check if JIRA is installed
+  stat:
+    path: "{{ jira_installation_instance_directory }}"
+  register: st
+
+- name: Determine if JIRA must be installed
+  set_fact:
+    jira_need_installation: "{{ not st.stat.exists and jira_perform_installation }}"

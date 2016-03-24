@@ -1,0 +1,12 @@
+---
+- name: start jira
+  when: jira_need_installation and jira_start_after_installation
+  service:
+    name: "{{ jira_service_name }}"
+    state: started
+  
+- name: restart jira
+  when: not jira_need_installation
+  service:
+    name: "{{ jira_service_name }}"
+    state: restarted

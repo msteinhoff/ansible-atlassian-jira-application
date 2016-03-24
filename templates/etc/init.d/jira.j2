@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# chkconfig: 2345 85 28
+# description: Initscript for Atlassian JIRA
+
+### BEGIN INIT INFO
+# Provides: $jira
+# Required-Start: $local_fs $network $syslog mysqld
+# Required-Stop: $local_fs $syslog mysqld
+# Should-Start: $syslog
+# Should-Stop: $network $syslog
+# Short-Description: Start JIRA daemon at boot time
+# Description:       Start JIRA daemon at boot time
+### END INIT INFO
+
+# JIRA Linux service controller script
+cd "{{ jira_installation_instance_directory }}/bin"
+
+case "$1" in
+    start)
+        ./start-jira.sh
+        ;;
+    restart)
+        ./stop-jira.sh
+        ./start-jira.sh
+        ;;
+    stop)
+        ./stop-jira.sh
+        ;;
+    *)
+        echo "Usage: $0 {start|restart|stop}"
+        exit 1
+        ;;
+esac

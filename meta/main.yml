@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  author: Mario Steinhoff
+  description: Installs and configures a Atlassian JIRA instance.
+  company: catapullt GmbH & Co. KG
+  license: MPLv2
+  min_ansible_version: 20
+  platforms:
+  - name: EL
+    versions:
+    - 6
+  galaxy_tags: []

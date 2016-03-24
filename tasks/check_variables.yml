@@ -1,0 +1,5 @@
+---
+- name: Check if jira_config_jre_directory is defined
+  when: jira_config_jre_directory is not defined
+  fail:
+    msg: This role requires 'jira_config_jre_directory' to be set

@@ -1,0 +1,85 @@
+---
+- block:
+  - name: Create temporary download directory
+    shell: mktemp -d
+    register: tempdir_command_output
+
+  - name: Determine path to temporary download directory
+    set_fact:
+      jira_download_directory: "{{ tempdir_command_output.stdout }}"
+
+  - name: Download JIRA archive
+    get_url:
+      url: "{{ jira_installation_archive_url }}"
+      checksum: "{{ jira_installation_archive_checksum }}"
+      dest: "{{ jira_download_directory }}/{{ jira_installation_archive_url | basename }}"
+
+  - name: Extract JIRA archive
+    unarchive:
+      src: "{{ jira_download_directory }}/{{ jira_installation_archive_url | basename }}"
+      dest: "{{ jira_config_software_directory }}"
+      copy: no
+    notify: start jira
+
+  - name: Stat infos about JIRA installation directory
+    stat:
+      path: "{{ jira_installation_instance_directory }}"
+    register: jira_installation_instance_stat
+
+  - name: Fail if JIRA installation directory does not exist
+    fail:
+      msg: "Could not find JIRA install directory at {{ jira_installation_instance_directory }}"
+    when: not jira_installation_instance_stat.stat.exists
+
+  - name: Copy JDBC driver to JIRA application
+    when: jira_installation_jdbc_driver_jar_source_path is defined and jira_installation_jdbc_driver_jar_source_path != ""
+    copy:
+      remote_src: True
+      src: "{{ jira_installation_jdbc_driver_jar_source_path }}"
+      dest: "{{ jira_installation_instance_directory }}/lib/{{ jira_installation_jdbc_driver_jar_source_path | basename }}"
+
+  - name: Set user/group to root and disable write access for 'group' and 'other' in JIRA installation directory
+    file:
+      state: directory
+      dest: "{{ jira_installation_instance_directory }}"
+      owner: root
+      group: root
+      mode: go-w
+      recurse: yes
+
+  - name: Set user/group to application user and mode to 0700 for logs,temp,work in JIRA installation directory
+    file:
+      state: directory
+      dest: "{{ item }}"
+      owner: "{{ jira_user_name }}"
+      group: root
+      mode: 0700
+    with_items:
+    - "{{ jira_installation_instance_directory }}/logs"
+    - "{{ jira_installation_instance_directory }}/temp"
+    - "{{ jira_installation_instance_directory }}/work"
+
+  - name: Install init script for JIRA application
+    template:
+      src: etc/init.d/jira.j2
+      dest: /etc/init.d/{{ jira_service_name }}
+      owner: root
+      group: root
+      mode: 0755
+
+  rescue:
+  - name: Remove eventually inconsistent instance directory
+    file:
+      state: absent
+      dest: "{{ jira_installation_instance_directory }}"
+
+  - name: Remove eventually inconsistent init script
+    file:
+      state: absent
+      dest: "/etc/init.d/{{ jira_service_name }}"
+
+  always:
+  - name: Remove temporary download directory
+    file:
+      state: absent
+      dest: "{{ jira_download_directory }}"
