@@ -5,14 +5,14 @@
     regexp: "{{ item.regexp }}"
     replace: "{{ item.replace }}"
   with_items:
-  - regexp: "^# !INSTALLER SET JAVA_HOME"
-    replace: "JAVA_HOME=\"{{ jira_config_jre_directory }}\"; export JAVA_HOME"
-  - regexp: "^JVM_MINIMUM_MEMORY="
-    replace: "JVM_MINIMUM_MEMORY=\"{{ jira_config_jvm_heap_size }}\""
-  - regexp: "^JVM_MAXIMUM_MEMORY="
-    replace: "JVM_MAXIMUM_MEMORY=\"{{ jira_config_jvm_heap_size }}\""
-  - regexp: "^JVM_SUPPORT_RECOMMENDED_ARGS="
-    replace: "JVM_SUPPORT_RECOMMENDED_ARGS=\"{{ jira_config_jvm_opts }}\""
+  - regexp: '^# !INSTALLER SET JAVA_HOME'
+    replace: 'JAVA_HOME="{{ jira_config_jre_directory }}"; export JAVA_HOME'
+  - regexp: '^JVM_MINIMUM_MEMORY="(.*)"'
+    replace: 'JVM_MINIMUM_MEMORY="{{ jira_config_jvm_heap_size }}"'
+  - regexp: '^JVM_MAXIMUM_MEMORY="(.*)"'
+    replace: 'JVM_MAXIMUM_MEMORY="{{ jira_config_jvm_heap_size }}"'
+  - regexp: '^JVM_SUPPORT_RECOMMENDED_ARGS="(.*)"'
+    replace: 'JVM_SUPPORT_RECOMMENDED_ARGS="{{ jira_config_jvm_opts }}"'
   notify:
   - restart jira
 
