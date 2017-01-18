@@ -117,8 +117,8 @@ Path to a directory where the JIRA instance should be installed.
 
     jira_installation_jdbc_driver_jar_source_path: (empty)
 
-Optional path to a JDBC driver jar file that will be copied into the JIRA
-instance lib directory.
+Optional path to a JDBC driver jar file on the control machine that will be
+copied into the JIRA instance lib directory on the remote machine.
 
 ## Configuration variables
 
